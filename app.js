@@ -74,21 +74,35 @@ app.post("/file_sharing/registration", async (req, res) => {
 
 });
 
-app.post("/file_sharing/login", (req, res) => {
-    const { auth_name, auth_pass } = req.body;
-    if (auth_name === undefined && auth_pass === undefined) return res.status(400).json({ message: "Поле имени или пароля пусты" });
-    
-    //Неправильное сравнение
+app.post("/file_sharing/login", async (req, res) => {
     try {
-        const salt = bcrypt.genSaltSync(10);
-        const hashPass = bcrypt.hashSync(auth_pass, salt);
-        checkName = db.get("SELECT * FROM Users WHERE Name = ? AND Password = ?", [auth_name, hashPass], (err, row) => {
-            if (err) return res.status(400).json({message: "Неверный логин или пароль"});
-            return res.status(500).json({message: "Пользователь успешно авторизовался"})
-        })
+        const { auth_name, auth_pass } = req.body;
+
+        if (!(auth_name && auth_pass)) return res.status(400).json({ message: "Требуется ввод данных" });
+
+        let user = [];
+
+        const sql = "SELECT * FROM Users WHERE Username = ?";
+        db.all(sql, auth_name, (err, rows) => {
+            if (err) return res.status(400).json({ "error": err.message });
+            rows.forEach(function (row) {
+                user.push(row);
+            })
+            const PHash = bcrypt.hashSync(auth_pass, user[0].Salt);
+
+            if (PHash === user[0].Password) {
+                const token = jwt.sign({ userId: user[0].Id, userName: user[0].Username, auth_name }, secret, { expiresIn: "1h" });
+
+                user[0].Token = token;
+            } else {
+                return res.status(200).json({message: "Совпадений нет"});
+            }
+            
+            return res.status(200).json({message: "Пользователь успешно авторизовался"})
+        });
     }
     catch {
-        res.status(500).json({ message: "Произошла ошибка при попытке авторизации логина пользователя" })
+        return res.status(400).json({ message: "Произошла ошибка при попытке авторизации пользователя" });
     }
 })
 
