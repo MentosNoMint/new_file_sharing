@@ -1,0 +1,57 @@
+* {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+
+a {
+    color: black;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    border: none;
+    background: none;
+}
+
+li {
+    list-style: none;
+}
+
+body {
+    height: 100%;
+    line-height: 1;
+    background: white;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    background: grey;
+    padding-top: 30px;
+    padding-left: 35px;
+    padding-right: 35px;
+    padding-bottom: 30px;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.download_files {
+    margin-top: 30px;
+}
+
+.download_files .main-span {
+    font-size: 30px;
+}
