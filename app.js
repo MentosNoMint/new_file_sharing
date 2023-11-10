@@ -78,8 +78,6 @@ app.post("/file_sharing/login", async (req, res) => {
     try {
         const { auth_name, auth_pass } = req.body;
 
-        if (!(auth_name && auth_pass)) return res.status(400).json({ message: "Требуется ввод данных" });
-
         let user = [];
 
         const sql = "SELECT * FROM Users WHERE Username = ?";
@@ -105,6 +103,21 @@ app.post("/file_sharing/login", async (req, res) => {
         return res.status(400).json({ message: "Произошла ошибка при попытке авторизации пользователя" });
     }
 })
+
+app.get("/users", async (req, res) => {
+    try {
+        const sql = "SELECT * FROM Users";
+        await db.all(sql, (err, rows) => {
+            if (err) return res.status(200).json({message: "Неудалось получить пользователей"});
+            rows.forEach(function(row) {
+                console.log(row);
+            })
+        });
+    }
+    catch {
+        return res.status(200).json({message: "Неудалось сделать запрос получения всех пользователей"});
+    }
+});
 
 app.listen(port, () => {
     console.log(`Сервер запущен на порту ${port}`);
