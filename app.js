@@ -4,13 +4,14 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const sqlite3 = require("sqlite3");
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const port = 3000;
 const DB = "./db/users.sqlite";
 const secret = "mysecretkey";
 
-app.use(express.json())
-app.use(cors())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 let db = new sqlite3.Database(DB, (error) => {
     if (error) {
@@ -96,7 +97,7 @@ app.post("/file_sharing/login", async (req, res) => {
                 return res.status(200).json({message: "Совпадений нет"});
             }
             
-            return res.status(200).json({message: "Пользователь успешно авторизовался"})
+            return res.status(200).json({message: "Пользователь успешно авторизовался", token})
         });
     }
     catch {
