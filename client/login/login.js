@@ -13,6 +13,11 @@ form.addEventListener("submit", (e) => {
         body: JSON.stringify({ auth_name, auth_pass })
     })
         .then(response => response.json())
-        .then(data => console.log(data))
+        .then(data => {
+            localStorage.setItem("auth_token", JSON.stringify(data.Token));
+            if (localStorage.getItem("auth_token") !== null) {
+                window.location.replace("/client/main-page/file_sharing.html")
+            }
+        })
         .catch(error => console.log(error))
 })

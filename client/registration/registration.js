@@ -6,7 +6,6 @@ form.addEventListener("submit", (e) => {
     const sign_pass = document.getElementById("sign_pass").value
 
     fetch("http://localhost:3000/file_sharing/registration", {
-        mode: "no-cors",
         method: "POST",
         headers: {
             "Content-Type": "application/json"

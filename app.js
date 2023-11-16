@@ -12,6 +12,7 @@ const secret = "mysecretkey";
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 let db = new sqlite3.Database(DB, (error) => {
     if (error) {
@@ -50,7 +51,6 @@ app.post("/file_sharing/registration", async (req, res) => {
 
     try {
         const salt = bcrypt.genSaltSync(10);
-        const token = jwt.sign({ userName: sign_name }, secret, { expiresIn: "1h" });
 
         const checkName = await db.all(`SELECT * FROM Users WHERE Username = ?`);
         if (checkName.length > 0) {
@@ -58,8 +58,8 @@ app.post("/file_sharing/registration", async (req, res) => {
             return;
         }
         else {
-            const insert = "INSERT INTO Users (Username, Password, Salt, Token) VALUES (?,?,?,?)"
-            await db.run(insert, [sign_name, bcrypt.hashSync(sign_pass, salt), salt, token], (err) => {
+            const insert = "INSERT INTO Users (Username, Password, Salt) VALUES (?,?,?)"
+            await db.run(insert, [sign_name, bcrypt.hashSync(sign_pass, salt), salt], (err) => {
                 if (err) {
                     return res.status(500).json({ message: "Ошибка при добавлении данных" });
                 } else {
@@ -78,27 +78,34 @@ app.post("/file_sharing/registration", async (req, res) => {
 app.post("/file_sharing/login", async (req, res) => {
     try {
         const { auth_name, auth_pass } = req.body;
-
-        let user = [];
-
-        const sql = "SELECT * FROM Users WHERE Username = ?";
-        db.all(sql, auth_name, (err, rows) => {
-            if (err) return res.status(400).json({ "error": err.message });
-            rows.forEach(function (row) {
-                user.push(row);
-            })
-            const PHash = bcrypt.hashSync(auth_pass, user[0].Salt);
-
-            if (PHash === user[0].Password) {
-                const token = jwt.sign({ userId: user[0].Id, userName: user[0].Username, auth_name }, secret, { expiresIn: "1h" });
-
-                user[0].Token = token;
-            } else {
-                return res.status(200).json({message: "Совпадений нет"});
+        const sql = `SELECT * FROM Users WHERE Username = '${auth_name}'`
+        db.get(sql, (err, row) => {
+            if (err) {
+                return res.status(401).json({ message: "Такого пользователя несуществует" })
             }
-            
-            return res.status(200).json({message: "Пользователь успешно авторизовался", token})
-        });
+            else {
+                const storeHash = row.Password;
+                bcrypt.compare(auth_pass, storeHash, (err, result) => {
+                    if (result) {
+                        console.log(row.Password)
+                        const token = jwt.sign({ Username: auth_name, Password: row.Password }, secret, { expiresIn: "1h" });
+                        const update = `
+                        UPDATE Users
+                        SET Token = '${token}'
+                        WHERE Username = '${auth_name}'`;
+                        db.run(update, [token, auth_name], function(err) {
+                            if (err) {
+                                console.log(`Данные пользователя ${auth_name} обновились: Token: ${token}`)
+                            }
+                        })
+                        const data = {
+                            Token: token
+                        }
+                        return res.json(data)
+                    }
+                })
+            }
+        })
     }
     catch {
         return res.status(400).json({ message: "Произошла ошибка при попытке авторизации пользователя" });
@@ -109,14 +116,14 @@ app.get("/users", async (req, res) => {
     try {
         const sql = "SELECT * FROM Users";
         await db.all(sql, (err, rows) => {
-            if (err) return res.status(200).json({message: "Неудалось получить пользователей"});
-            rows.forEach(function(row) {
+            if (err) return res.status(200).json({ message: "Неудалось получить пользователей" });
+            rows.forEach(function (row) {
                 console.log(row);
             })
         });
     }
     catch {
-        return res.status(200).json({message: "Неудалось сделать запрос получения всех пользователей"});
+        return res.status(200).json({ message: "Неудалось сделать запрос получения всех пользователей" });
     }
 });
 
