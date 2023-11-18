@@ -52,9 +52,9 @@ app.post("/file_sharing/registration", async (req, res) => {
     try {
         const salt = bcrypt.genSaltSync(10);
 
-        const checkName = await db.all(`SELECT * FROM Users WHERE Username = ?`);
-        if (checkName.length > 0) {
-            res.status(400).json({ message: "Пользователь с таким именем уже существует" })
+        const checkName = await db.get(`SELECT Username FROM Users WHERE Username = ?`, sign_name);
+        if (checkName) {
+            res.status(400).json({ message: "Пользователь с таким именем уже существует" });
             return;
         }
         else {
@@ -78,36 +78,25 @@ app.post("/file_sharing/registration", async (req, res) => {
 app.post("/file_sharing/login", async (req, res) => {
     try {
         const { auth_name, auth_pass } = req.body;
-        const sql = `SELECT * FROM Users WHERE Username = '${auth_name}'`
-        db.get(sql, (err, row) => {
+        db.get("SELECT * FROM Users WHERE Username = ?", auth_name, (err, row) => {
             if (err) {
-                return res.status(401).json({ message: "Такого пользователя несуществует" })
-            }
-            else {
-                const storeHash = row.Password;
-                bcrypt.compare(auth_pass, storeHash, (err, result) => {
+                return res.status(401).json({ message: "Такого пользователя несуществует" });
+            } else {
+                console.log(row.Password)
+                bcrypt.compare(auth_pass, row.Password, (err, result) => {
                     if (result) {
-                        console.log(row.Password)
                         const token = jwt.sign({ Username: auth_name, Password: row.Password }, secret, { expiresIn: "1h" });
-                        const update = `
-                        UPDATE Users
-                        SET Token = '${token}'
-                        WHERE Username = '${auth_name}'`;
-                        db.run(update, [token, auth_name], function(err) {
-                            if (err) {
-                                console.log(`Данные пользователя ${auth_name} обновились: Token: ${token}`)
-                            }
-                        })
                         const data = {
                             Token: token
                         }
                         return res.json(data)
+                    } else {
+                        return res.status(401).json({ message: "Логин или пароль неверны" });
                     }
                 })
             }
-        })
-    }
-    catch {
+        });
+    } catch {
         return res.status(400).json({ message: "Произошла ошибка при попытке авторизации пользователя" });
     }
 })
