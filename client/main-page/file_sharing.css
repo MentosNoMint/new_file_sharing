@@ -55,3 +55,9 @@ main {
 .download_files .main-span {
     font-size: 30px;
 }
+
+.user-name {
+    margin-top: 10px;
+    margin-right: 15px;
+    text-align: center;
+}

@@ -85,8 +85,10 @@ app.post("/file_sharing/login", async (req, res) => {
                 console.log(row.Password)
                 bcrypt.compare(auth_pass, row.Password, (err, result) => {
                     if (result) {
+                        const name = row.Username;
                         const token = jwt.sign({ Username: auth_name, Password: row.Password }, secret, { expiresIn: "1h" });
                         const data = {
+                            UserName: name,
                             Token: token
                         }
                         return res.json(data)

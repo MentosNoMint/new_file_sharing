@@ -14,7 +14,8 @@ form.addEventListener("submit", (e) => {
     })
         .then(response => response.json())
         .then(data => {
-            localStorage.setItem("auth_token", JSON.stringify(data.Token));
+            localStorage.setItem("auth_name", JSON.stringify(data.UserName))
+            localStorage.setItem("auth_token", JSON.stringify(data.Token))
             if (localStorage.getItem("auth_token") !== null) {
                 window.location.replace("/client/main-page/file_sharing.html")
             }
