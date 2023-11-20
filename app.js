@@ -5,6 +5,8 @@ const bcrypt = require("bcrypt");
 const sqlite3 = require("sqlite3");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const multer = require("multer");
+const path = require("path");
 
 const port = 3000;
 const DB = "./db/users.sqlite";
@@ -13,6 +15,62 @@ const secret = "mysecretkey";
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "files"); // Используйте относительный путь
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+app.post("/upload", upload.single("up_file"), (req, res) => {
+    const { originalname, path } = req.file;
+
+    const insert = "INSERT INTO Files(Name, Path) VALUES(?,?)";
+    dbFiles.run(insert, [originalname, path], function (err) {
+        if (err) {
+            return res.status(500).send(err.message);
+        }
+
+        console.log(`Файл ${originalname} успешно загрузился под id ${this.lastID}`);
+        res.send("Файл успешно загрузился");
+    });
+});
+
+let dbFiles = new sqlite3.Database(DB, (error) => {
+    if (error) {
+        console.log("База данных не обнаружена")
+        throw error
+    }
+    else {
+        dbFiles.run(`
+        CREATE TABLE Files(
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            Name text,
+            Path text
+        )`, (err) => {
+            if (err) {
+                console.log("Таблица с файлами уже создана")
+            }
+            else {
+                console.log("Создаётся таблица с файлами")
+            }
+        })
+    }
+})
+
+app.get("/getFiles", (req, res) => {
+    dbFiles.all("SELECT * FROM Files", (err, rows) => {
+        if (err) {
+            return res.status(500).send(err.message);
+        }
+        res.json(rows);
+    });
+});
 
 let db = new sqlite3.Database(DB, (error) => {
     if (error) {
