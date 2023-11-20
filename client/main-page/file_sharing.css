@@ -61,3 +61,11 @@ main {
     margin-right: 15px;
     text-align: center;
 }
+
+.files {
+    margin-top: 30px;
+}
+
+.files p {
+    margin-top: 15px;
+}

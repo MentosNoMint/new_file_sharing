@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,14 +8,15 @@
     <link rel="stylesheet" href="./file_sharing.css">
     <title>Файлообменник</title>
 </head>
+
 <body>
     <header>
-        <form method="POST" action="#">
+        <div class="user">
             <label>Имя пользователя:</label>
             <div class="user-name">
-                
+
             </div>
-        </form>
+        </div>
         <div class="profile">
             <a href="#">Профиль</a>
         </div>
@@ -24,14 +26,18 @@
             <form method="post" action="#">
                 <label>Выберите файл:</label>
                 <input type="file" id="upload_file" name="up_file" required>
-                <button type="submit">Загрузить</button>
+                <button>Загрузить</button>
             </form>
         </div>
 
         <div class="download_files">
             <span class="main-span">Загруженные файлы</span>
+            <div class="files">
+
+            </div>
         </div>
     </main>
     <script src="./file_sharing.js"></script>
 </body>
+
 </html>
