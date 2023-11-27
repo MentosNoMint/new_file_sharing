@@ -24,10 +24,15 @@ form.addEventListener("submit", (e) => {
             fetch('http://localhost:3000/getFiles')
                 .then(response => response.json())
                 .then(rows => {
+                    JSON.stringify(rows)
+                    console.log(rows)
                     const filesContainer = document.getElementById("files");
+                    filesContainer.innerHTML = ""; // Очищаем предыдущий список
+
+                    // Создаем элементы списка для каждого файла
                     rows.forEach(file => {
                         const fileElement = document.createElement("div");
-                        fileElement.textContent = file.name;
+                        fileElement.innerHTML = `<span>${file.Name}</span>`
                         filesContainer.appendChild(fileElement);
                     });
                 })

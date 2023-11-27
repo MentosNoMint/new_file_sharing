@@ -69,3 +69,8 @@ main {
 .files p {
     margin-top: 15px;
 }
+
+#files {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
