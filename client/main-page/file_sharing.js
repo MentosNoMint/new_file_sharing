@@ -25,9 +25,6 @@ form.addEventListener("submit", (e) => {
                 .then(response => response.json())
                 .then(rows => {
                     const filesContainer = document.getElementById("files");
-                    // filesContainer.innerHTML = ""; // Очищаем предыдущий список
-
-                    // Создаем элементы списка для каждого файла
                     rows.forEach(file => {
                         const fileElement = document.createElement("div");
                         fileElement.textContent = file.name;

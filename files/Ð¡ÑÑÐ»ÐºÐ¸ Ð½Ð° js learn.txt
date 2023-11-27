@@ -1,0 +1,13 @@
+//https://learn.javascript.ru/
+
+1. https://learn.javascript.ru/async-await#tasks
+
+2. https://learn.javascript.ru/fetch
+
+3. https://learn.javascript.ru/dom-nodes
+
+4. https://learn.javascript.ru/cookie
+
+
+Ссылка на файлообменник:
+https://github.com/Varshithvhegde/anyshare

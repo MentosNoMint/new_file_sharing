@@ -111,7 +111,7 @@ app.post("/file_sharing/registration", async (req, res) => {
         const salt = bcrypt.genSaltSync(10);
 
         const checkName = await db.get(`SELECT Username FROM Users WHERE Username = ?`, sign_name);
-        if (checkName) {
+        if (!(checkName)) {
             res.status(400).json({ message: "Пользователь с таким именем уже существует" });
             return;
         }
